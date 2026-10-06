@@ -1,0 +1,5 @@
+{
+  "model_path": "models/your-local-model.gguf",
+  "context_length": 4096,
+  "threads": 4
+}
