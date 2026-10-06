@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+
+<head>
+<meta charset="utf-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1,viewport-fit=cover"
+>
+
+<title>بی‌هوش</title>
+
+<style>
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #090d12;
+  color: #d9ffe9;
+  font-family: monospace;
+  min-height: 100vh;
+}
+
+main {
+  max-width: 760px;
+  margin: auto;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  border-inline: 1px solid #26352e;
+}
+
+.top {
+  padding: 14px 16px;
+  border-bottom: 1px solid #26352e;
+  background: #0e1512;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.status {
+  font-size: 11px;
+  color: #72e6a0;
+  margin-top: 4px;
+}
+
+.chat {
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+}
+
+.msg {
+  max-width: 88%;
+  padding: 11px 13px;
+  margin: 8px 0;
+  border: 1px solid #26352e;
+  white-space: pre-wrap;
+  line-height: 1.7;
+}
+
+.user {
+  margin-right: auto;
+  background: #101b16;
+}
+
+.ai {
+  margin-left: auto;
+  background: #0d1310;
+}
+
+.bottom {
+  padding: 10px;
+  border-top: 1px solid #26352e;
+  background: #0e1512;
+  display: flex;
+  gap: 8px;
+}
+
+.input {
+  flex: 1;
+  resize: none;
+  background: #080c0a;
+  color: #d9ffe9;
+  border: 1px solid #31463a;
+  padding: 12px;
+  font: inherit;
+  border-radius: 8px;
+  min-height: 48px;
+}
+
+.send {
+  border: 1px solid #72e6a0;
+  background: #72e6a0;
+  color: #07100b;
+  border-radius: 8px;
+  padding: 0 17px;
+  font: inherit;
+  font-weight: bold;
+}
+
+.hint {
+  text-align: center;
+  color: #607568;
+  font-size: 11px;
+  padding: 6px;
+}
+
+</style>
+</head>
+
+<body>
+
+<main>
+
+<header class="top">
+
+<div class="logo">
+👾 بی‌هوش
+</div>
+
+<div class="status" id="status">
+● هسته مستقل آماده
+</div>
+
+</header>
+
+
+<section class="chat" id="chat">
+
+<div class="msg ai">
+سلام! من بی‌هوش هستم 👾
+نسخه مستقل من آماده است.
+هنوز موتور مدل محلی قدرتمند به من متصل نشده،
+ولی هسته چت و حافظه آماده‌اند.
+</div>
+
+</section>
+
+
+<div class="hint">
+مکالمه فعلاً روی همین دستگاه نگه داشته می‌شود.
+</div>
+
+
+<footer class="bottom">
+
+<textarea
+  id="input"
+  class="input"
+  placeholder="با بی‌هوش صحبت کن..."
+></textarea>
+
+<button
+  class="send"
+  id="send"
+>
+ارسال
+</button>
+
+</footer>
+
+</main>
+
+
+<script>
+
+const chat =
+  document.querySelector("#chat");
+
+const input =
+  document.querySelector("#input");
+
+const send =
+  document.querySelector("#send");
+
+const status =
+  document.querySelector("#status");
+
+
+let history = JSON.parse(
+  localStorage.getItem("bihoosh_history") || "[]"
+);
+
+
+function addMessage(text, who) {
+
+  const div =
+    document.createElement("div");
+
+  div.className =
+    "msg " + who;
+
+  div.textContent =
+    text;
+
+  chat.appendChild(div);
+
+  chat.scrollTop =
+    chat.scrollHeight;
+}
+
+
+async function sendMessage() {
+
+  const text =
+    input.value.trim();
+
+  if (!text) {
+    return;
+  }
+
+  input.value = "";
+
+  addMessage(
+    text,
+    "user"
+  );
+
+  history.push({
+    role: "user",
+    content: text
+  });
+
+  localStorage.setItem(
+    "bihoosh_history",
+    JSON.stringify(history)
+  );
+
+  status.textContent =
+    "● در حال فکر کردن...";
+
+
+  try {
+
+    const response =
+      await fetch(
+        "/api/chat",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+            message: text,
+            history: history
+          })
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if (!response.ok) {
+      throw new Error(
+        data.error || "خطا"
+      );
+    }
+
+
+    addMessage(
+      data.reply,
+      "ai"
+    );
+
+
+    history.push({
+      role: "assistant",
+      content: data.reply
+    });
+
+
+    localStorage.setItem(
+      "bihoosh_history",
+      JSON.stringify(history)
+    );
+
+
+    status.textContent =
+      "● هسته مستقل آماده";
+
+  }
+
+  catch (error) {
+
+    addMessage(
+      "خطا: " + error.message,
+      "ai"
+    );
+
+    status.textContent =
+      "● API در دسترس نیست";
+  }
+}
+
+
+send.onclick =
+  sendMessage;
+
+
+input.addEventListener(
+  "keydown",
+  function(event) {
+
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey
+    ) {
+
+      event.preventDefault();
+
+      sendMessage();
+    }
+
+  }
+);
+
+</script>
+
+</body>
+</html>
