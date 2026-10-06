@@ -1,0 +1,126 @@
+from search.web_search import WebSearch
+
+
+class Brain:
+    """
+    هسته اصلی بی‌هوش
+    نسخه 0.1:
+    - پاسخ‌گویی
+    - جست‌وجوی اینترنت
+    """
+
+    def __init__(self):
+        self.name = "بی‌هوش"
+        self.search = WebSearch()
+
+    def needs_web_search(self, message):
+        """
+        تشخیص ساده سؤال‌هایی که احتمالاً
+        به اطلاعات جدید اینترنت نیاز دارند.
+        """
+
+        keywords = [
+            "امروز",
+            "الان",
+            "جدیدترین",
+            "آخرین",
+            "قیمت",
+            "اخبار",
+            "خبر",
+            "آب و هوا",
+            "هوا",
+            "ساعت",
+            "تاریخ",
+            "بازار",
+            "نرخ",
+            "دلار",
+            "یورو",
+            "بیت کوین",
+            "بیت‌کوین",
+            "اتریوم",
+            "کجا",
+            "سایت",
+            "اینترنت",
+            "جستجو",
+            "بررسی کن",
+            "بررسی",
+            "کی منتشر شد",
+            "چه زمانی",
+            "چه خبر",
+            "latest",
+            "today",
+            "current",
+            "news",
+            "price"
+        ]
+
+        text = message.lower()
+
+        return any(keyword.lower() in text for keyword in keywords)
+
+    def format_search_results(self, results):
+        """
+        تبدیل نتایج جست‌وجو به متن قابل استفاده
+        برای هسته هوش مصنوعی.
+        """
+
+        if not results:
+            return "نتیجه‌ای از اینترنت پیدا نشد."
+
+        output = []
+
+        for i, result in enumerate(results, 1):
+            title = result.get("title", "")
+            url = result.get("url", "")
+            content = result.get("content", "")
+
+            output.append(
+                f"{i}. {title}\n"
+                f"{content}\n"
+                f"منبع: {url}"
+            )
+
+        return "\n\n".join(output)
+
+    def reply(self, message, history=None):
+        message = message.strip()
+
+        if not message:
+            return "پیامت خالی است."
+
+        # پاسخ‌های ساده بدون نیاز به اینترنت
+        if any(x in message.lower() for x in ["سلام", "hello", "hi"]):
+            return (
+                "سلام! 👾\n\n"
+                "من بی‌هوش هستم.\n"
+                "هسته مستقل من آماده است."
+            )
+
+        if "اسم" in message and "تو" in message:
+            return "اسم من بی‌هوش است 👾"
+
+        # بررسی نیاز به جست‌وجوی اینترنت
+        if self.needs_web_search(message):
+
+            results = self.search.search(
+                message,
+                limit=5
+            )
+
+            search_text = self.format_search_results(results)
+
+            return (
+                "🌐 نتیجه جست‌وجوی اینترنت:\n\n"
+                + search_text
+                + "\n\n"
+                "ℹ️ این نتایج از جست‌وجوی اینترنت گرفته شده‌اند."
+            )
+
+        # پاسخ فعلی تا زمانی که مدل محلی اضافه شود
+        return (
+            f"پیامت را دریافت کردم:\n\n"
+            f"«{message}»\n\n"
+            "🧠 هسته مستقل بی‌هوش فعال است.\n"
+            "🌐 جست‌وجوی اینترنت نیز آماده است.\n\n"
+            "مدل زبانی محلی در مرحله بعد به هسته متصل می‌شود."
+        )
