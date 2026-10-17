@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1b2d">
+<title>آریا</title>
+</head>
+<body style="margin:0;background:#0b1420;color:#8fa1b5;font-family:system-ui,sans-serif;text-align:center;padding-top:40vh">
+در حال باز شدن...
+<script>
+(async function(){
+  var PATCH = '<script>(function(){'
+  + 'if(typeof codeBlock!=="function"||typeof renderMd!=="function")return;'
+  + 'codeBlock=function(root,code,lang){'
+  + 'var w=document.createElement("div");w.className="cb";'
+  + 'var bar=document.createElement("div");bar.className="cbar";'
+  + 'var lb=document.createElement("span");lb.textContent=lang||"code";bar.appendChild(lb);'
+  + 'var mk=function(t,fn){var b=document.createElement("button");b.textContent=t;b.onclick=fn;bar.appendChild(b);return b};'
+  + 'mk("📋 کپی",async function(e){try{await navigator.clipboard.writeText(code);e.target.textContent="کپی شد ✅"}catch(x){e.target.textContent="کپی نشد"}});'
+  + 'var pre=document.createElement("pre"),c=document.createElement("code");c.textContent=code;pre.appendChild(c);'
+  + 'w.append(bar,pre);root.appendChild(w);'
+  + 'if(lang==="html"&&/<html|<!doctype|<body|<canvas|<script/i.test(code)){'
+  + 'var box=document.createElement("div");box.style.cssText="display:none;border-top:1px solid var(--line)";'
+  + 'var fr=document.createElement("iframe");fr.setAttribute("sandbox","allow-scripts allow-forms allow-modals");fr.title="اجرای کد";'
+  + 'fr.style.cssText="width:100%;height:60vh;border:0;background:#fff;display:block";'
+  + 'box.appendChild(fr);w.appendChild(box);var on=false;'
+  + 'var load=function(){fr.srcdoc=/<head[^>]*>/i.test(code)?code.replace(/<head[^>]*>/i,function(x){return x+HOOK}):HOOK+code};'
+  + 'var run=mk("▶ اجرا",function(){on=!on;'
+  + 'if(on){load();box.style.display="block";run.textContent="⏹ بستن";box.scrollIntoView({block:"nearest",behavior:"smooth"})}'
+  + 'else{fr.srcdoc="";box.style.display="none";run.textContent="▶ اجرا"}});'
+  + 'mk("🔄",function(){if(on)load()});'
+  + 'mk("⛶ تمام‌صفحه",function(){openPv(code)});'
+  + '}};'
+  + 'try{render()}catch(e){}'
+  + '})()<\/script>';
+  try{
+    var r = await fetch('arya.html', {cache:'no-store'});
+    if(!r.ok) throw new Error('فایل arya.html پیدا نشد ('+r.status+')');
+    var h = await r.text();
+    var i = h.lastIndexOf('</body>');
+    h = i >= 0 ? h.slice(0,i) + PATCH + h.slice(i) : h + PATCH;
+    document.open(); document.write(h); document.close();
+  }catch(e){
+    document.body.textContent = 'خطا: ' + e.message;
+  }
+})();
+</script>
+</body>
+</html>
